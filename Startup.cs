@@ -1,9 +1,12 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 
 namespace jwtBearerTest
 {
@@ -21,6 +24,26 @@ namespace jwtBearerTest
         {
 
             services.AddControllersWithViews();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(
+                    authenticationScheme: JwtBearerDefaults.AuthenticationScheme,
+                    configureOptions: options => {
+                        options.IncludeErrorDetails = true;
+                        options.TokenValidationParameters =
+                        new TokenValidationParameters(){ 
+                            IssuerSigningKey = new SymmetricSecurityKey(
+                                Encoding.UTF32.GetBytes(Configuration["Jwt:PrivateKey"])
+                            ),
+                            ValidAudience = "identityapp",
+                            ValidIssuer = "identityapp",
+                            RequireExpirationTime = false,
+                            RequireAudience = false,
+                            ValidateIssuer = false,
+                            ValidateAudience = false
+                        };
+                    }
+                );
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -47,6 +70,9 @@ namespace jwtBearerTest
             app.UseSpaStaticFiles();
 
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
