@@ -1,9 +1,10 @@
 import './App.css';
+import {JwtBearerClient} from './components/jwt-bearer-client';
 
 function App() {
   return (
     <div className="App">
-      <p>Something else will find its way here eventually</p>
+      <JwtBearerClient></JwtBearerClient>
     </div>
   );
 }
