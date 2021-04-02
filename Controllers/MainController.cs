@@ -29,8 +29,8 @@ namespace jwtBearerTest.Controllers
         }
 
         [HttpPost]
-       [Route("token/get")]
-       public IActionResult GetToken( [FromBody] LoginModel loginModel ){
+        [Route("token/get")]
+        public IActionResult GetToken( [FromBody] LoginModel loginModel ){
 
            JwtGenerator token = jwtGenerator
             .AddClaim(new Claim("Email", loginModel.email))
@@ -76,8 +76,8 @@ namespace jwtBearerTest.Controllers
             var jwt = new JwtSecurityToken(
                 jwtHeader,
                 new JwtPayload(
-                    audience: "identityapp",
-                    issuer:"identityapp",
+                    audience: "localhost:5000",
+                    issuer:"localhost:5000",
                     notBefore: jwtDate,
                     expires: jwtDate.AddSeconds(tokenLifetimeInSeconds),
                     claims: jwtClaims

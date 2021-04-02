@@ -1,4 +1,5 @@
 using System.Text;
+using jwtBearerTest.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -25,25 +26,24 @@ namespace jwtBearerTest
 
             services.AddControllersWithViews();
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(
-                    authenticationScheme: JwtBearerDefaults.AuthenticationScheme,
-                    configureOptions: options => {
-                        options.IncludeErrorDetails = true;
-                        options.TokenValidationParameters =
-                        new TokenValidationParameters(){ 
-                            IssuerSigningKey = new SymmetricSecurityKey(
-                                Encoding.UTF32.GetBytes(Configuration["Jwt:PrivateKey"])
-                            ),
-                            ValidAudience = "identityapp",
-                            ValidIssuer = "identityapp",
-                            RequireExpirationTime = false,
-                            RequireAudience = false,
-                            ValidateIssuer = false,
-                            ValidateAudience = false
-                        };
-                    }
-                );
+            // services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //     .AddJwtBearer(
+            //         authenticationScheme: JwtBearerDefaults.AuthenticationScheme,
+            //         configureOptions: options => {
+            //             options.IncludeErrorDetails = true;
+            //             options.TokenValidationParameters =
+            //             new TokenValidationParameters(){ 
+            //                 IssuerSigningKey = new SymmetricSecurityKey(
+            //                     Encoding.UTF32.GetBytes(Configuration["Jwt:PrivateKey"])
+            //                 ),  
+            //                 ValidateIssuer = true,  
+            //                 ValidateAudience = true,  
+            //                 ValidIssuer = "localhost:5000",  
+            //                 ValidAudience = "localhost:5000" 
+            //             };
+            //         }
+            //     );
+            services.AddTokenAuthentication(Configuration);
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
