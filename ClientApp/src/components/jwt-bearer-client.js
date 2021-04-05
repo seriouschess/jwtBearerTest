@@ -12,6 +12,7 @@ export class JwtBearerClient extends Component{
 
   componentDidMount() {
       let token = this.getToken();
+      
       this.authenticateSecureEndpoint(token);
   }
 
@@ -24,16 +25,17 @@ export class JwtBearerClient extends Component{
         return res.data;
       });
       this.setState( { jwt_token:data.token } );
-      console.log(data);
+
       this.forceUpdate();
-      return data.token;
+      return await data.token;
   }
 
-  async authenticateSecureEndpoint(token_parameter){
+  async authenticateSecureEndpoint(token_parameter){ //token_parameter passed in as promise
+  console.log(await token_parameter);
 
   const data = await axios.get('main/authenticate', {
     headers: {
-      'Authorization': `token ${token_parameter}`
+      'Authorization': `token ${ await token_parameter }`
     }
   }).then((res) => { console.log(res.data)}
   ).catch((err) => {console.log(err)});
