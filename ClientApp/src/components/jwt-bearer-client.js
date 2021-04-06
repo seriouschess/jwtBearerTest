@@ -35,10 +35,11 @@ export class JwtBearerClient extends Component{
 
   const data = await axios.get('main/authenticate', {
     headers: {
-      'Authorization': `token ${ await token_parameter }`
+      'Authorization': `Bearer ${ await token_parameter }`
     }
-  }).then((res) => { console.log(res.data)}
+  }).then((res) => { return res.data}
   ).catch((err) => {console.log(err)});
+  this.setState({ authentication_response:data });
 
   //Referrer Policystrict-origin-when-cross-origin ??
 

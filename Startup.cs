@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using jwtBearerTest.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using jwtBearerTest.Models;
 
 namespace jwtBearerTest
 {
@@ -26,24 +28,29 @@ namespace jwtBearerTest
 
             services.AddControllersWithViews();
 
-            // services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //     .AddJwtBearer(
-            //         authenticationScheme: JwtBearerDefaults.AuthenticationScheme,
-            //         configureOptions: options => {
-            //             options.IncludeErrorDetails = true;
-            //             options.TokenValidationParameters =
-            //             new TokenValidationParameters(){ 
-            //                 IssuerSigningKey = new SymmetricSecurityKey(
-            //                     Encoding.UTF32.GetBytes(Configuration["Jwt:PrivateKey"])
-            //                 ),  
-            //                 ValidateIssuer = true,  
-            //                 ValidateAudience = true,  
-            //                 ValidIssuer = "localhost:5000",  
-            //                 ValidAudience = "localhost:5000" 
-            //             };
-            //         }
-            //     );
-            services.AddTokenAuthentication(Configuration);
+           services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = Configuration["Jwt:Issuer"],
+                    ValidAudience = Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:PrivateKey"])),
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
+            services.AddAuthorization(config =>
+            {
+                config.AddPolicy(Policies.Admin, Policies.AdminPolicy());
+                config.AddPolicy(Policies.User, Policies.UserPolicy());
+            });
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>

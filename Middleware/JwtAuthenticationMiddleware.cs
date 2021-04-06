@@ -9,11 +9,11 @@ namespace jwtBearerTest.Middleware
 {
     public static class JwtAuthenticationMiddleware
     {
-            public static IServiceCollection AddTokenAuthentication(this IServiceCollection services, IConfiguration config)  
+        public static IServiceCollection AddTokenAuthentication(this IServiceCollection services, IConfiguration config)  
         {  
             var secret = config.GetSection("Jwt").GetSection("PrivateKey").Value;
 
-            System.Console.WriteLine(secret);
+            System.Console.WriteLine($"Secret Key: {secret}");
   
             var key = Encoding.ASCII.GetBytes(secret);  
             services.AddAuthentication(x =>  
@@ -26,8 +26,8 @@ namespace jwtBearerTest.Middleware
                 x.TokenValidationParameters = new TokenValidationParameters  
                 {  
                     IssuerSigningKey = new SymmetricSecurityKey(key),  
-                    ValidateIssuer = true,  
-                    ValidateAudience = true,  
+                    ValidateIssuer = false,  
+                    ValidateAudience = false,  
                     ValidIssuer = "localhost:5000",  
                     ValidAudience = "localhost:5000"  
                 };  

@@ -16,8 +16,10 @@ namespace jwtBearerTest.Controllers
     public class MainController : ControllerBase
     {
         private readonly JwtGenerator jwtGenerator;
+        private IConfiguration _config;
         public MainController(IConfiguration config){
-            jwtGenerator = new JwtGenerator(config["Jwt:PrivateKey"], config["Jwt:LifetimeInSeconds"]);
+            this._config = config;
+            jwtGenerator = new JwtGenerator(_config["Jwt:PrivateKey"], _config["Jwt:LifetimeInSeconds"]);
         }
 
         [HttpGet]
@@ -31,16 +33,37 @@ namespace jwtBearerTest.Controllers
         [HttpPost]
         [Route("token/get")]
         public IActionResult GetToken( [FromBody] LoginModel loginModel ){
+            IActionResult response = Unauthorized();
 
-           JwtGenerator token = jwtGenerator
-            .AddClaim(new Claim("Email", loginModel.email))
-            .AddClaim(new Claim("Password", loginModel.password));
-
-            return Ok(new {
-                Token = token.GetToken(),
-                ExpirationInUnixTime = token.GetTokenExpirationInUnixTime
-            });
+            var tokenString = GenerateJWTToken(loginModel);
+                response = Ok(new
+                {
+                    token = tokenString,
+                    userDetails = loginModel.ToString()
+                });
+            return response;
        }
+
+        private string GenerateJWTToken(LoginModel Info)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes( _config["Jwt:PrivateKey"] ));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim("Email", Info.email),
+                new Claim("Password", Info.password)
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(30),
+                signingCredentials: credentials
+            );
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
     }
 
     public class JwtGenerator{
