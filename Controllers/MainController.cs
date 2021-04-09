@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -24,6 +25,13 @@ namespace jwtBearerTest.Controllers
         [Route("authenticate")]
         public string Authenticate()
         {
+            var token = HttpContext.Request.Headers["Authorization"].ToString();
+            System.Console.WriteLine($"Returned Token: {token}");
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            IEnumerable<Claim> claims = identity.Claims;
+            foreach(Claim claim in claims){
+                System.Console.WriteLine(claim.Value.ToString());
+            }
             return "success";
         }
 
